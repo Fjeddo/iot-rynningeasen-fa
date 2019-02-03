@@ -24,7 +24,7 @@ namespace IoTRynningeasenFA
             log.Info($"Request body: {requestBody}");
             log.Info($"Debug: {configuration["iot-www-api-location"]}");
 
-            var dummy = httpClient.PostAsync(configuration["iot-www-api-location"].ToString(), new StringContent(requestBody, System.Text.Encoding.UTF8, "application/json")).Result;
+            await httpClient.PostAsync($"{configuration["iot-www-api-location"]}", new StringContent(requestBody, System.Text.Encoding.UTF8, "application/json"));
 
             dynamic[] data = JsonConvert.DeserializeObject<dynamic[]>(requestBody);
 
@@ -45,10 +45,10 @@ namespace IoTRynningeasenFA
                     fields += $"&field{@field}=" + value.Value;
                 }
 
-                dummy = httpClient.GetAsync($"https://api.thingspeak.com/update?api_key={channelKey}{fields}").Result;
+                await httpClient.GetAsync($"https://api.thingspeak.com/update?api_key={channelKey}{fields}");
             }
 
-            return req.CreateResponse(HttpStatusCode.OK, $"Done");
+            return req.CreateResponse(HttpStatusCode.OK);
         }
     }
 }
