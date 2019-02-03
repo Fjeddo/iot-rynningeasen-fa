@@ -22,6 +22,7 @@ namespace IoTRynningeasenFA
 
             string requestBody = req.Content.ReadAsStringAsync().Result;
             log.Info($"Request body: {requestBody}");
+            log.Info($"Debug: {configuration["iot-www-api-location"]}");
 
             var dummy = httpClient.PostAsync(configuration["iot-www-api-location"], new StringContent(requestBody, System.Text.Encoding.UTF8, "application/json")).Result;
 
