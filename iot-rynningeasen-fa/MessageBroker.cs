@@ -5,15 +5,17 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
-using Microsoft.Extensions.Configuration;
+using System.Configuration;
 
 namespace IoTRynningeasenFA
 {
     public static class MessageBroker
     {
         [FunctionName("IoTMessageBroker")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestMessage req, TraceWriter log, IConfiguration configuration)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestMessage req, TraceWriter log)
         {
+            var configuration = ConfigurationManager.AppSettings;
+
             log.Info("C# HTTP IoT Messagebroker function processed a request.");
 
             var httpClient = new HttpClient();
