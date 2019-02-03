@@ -5,13 +5,14 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace IoTRynningeasenFA
 {
     public static class MessageBroker
     {
         [FunctionName("IoTMessageBroker")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestMessage req, TraceWriter log)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestMessage req, TraceWriter log, IConfiguration configuration)
         {
             log.Info("C# HTTP IoT Messagebroker function processed a request.");
 
@@ -20,16 +21,16 @@ namespace IoTRynningeasenFA
             string requestBody = req.Content.ReadAsStringAsync().Result;
             log.Info($"Request body: {requestBody}");
 
-            var dummy = httpClient.PostAsync("", new StringContent(requestBody, System.Text.Encoding.UTF8, "application/json")).Result;
+            var dummy = httpClient.PostAsync(configuration["iot-www-api-location"], new StringContent(requestBody, System.Text.Encoding.UTF8, "application/json")).Result;
 
             dynamic[] data = JsonConvert.DeserializeObject<dynamic[]>(requestBody);
 
             foreach (var @group in data)
             {
-                var channelKey = ""; // 693480 - temp
+                var channelKey = configuration["ts-ck-temperature"]; // 693480 - temp
                 if (@group.Name == "pressure")
                 {
-                    channelKey = ""; // 693482 - pressure
+                    channelKey = configuration["ts-ck-pressure"]; // 693482 - pressure
                 }
 
                 var fields = "";
