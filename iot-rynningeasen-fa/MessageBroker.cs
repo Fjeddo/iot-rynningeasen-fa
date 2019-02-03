@@ -12,7 +12,7 @@ namespace IoTRynningeasenFA
     public static class MessageBroker
     {
         [FunctionName("IoTMessageBroker")]
-        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestMessage req, TraceWriter log, ExecutionContext context)
+        public static async Task<HttpResponseMessage> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestMessage req, TraceWriter log)
         {
             var configuration = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Process);
 
