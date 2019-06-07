@@ -35,7 +35,7 @@ namespace IoTRynningeasenFA
 
                 await httpClient.PostAsync(
                     $"{configuration["iot-www-api-location"]}/{route}",
-                    new StringContent(o, System.Text.Encoding.UTF8, "application/json"));
+                    new StringContent(JsonConvert.SerializeObject(o), System.Text.Encoding.UTF8, "application/json"));
 
                 var channelKey = configuration["ts-ck-temperature"]; // 693480 - temp
                 if (route == "pressure")
