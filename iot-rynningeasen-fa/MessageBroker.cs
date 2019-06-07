@@ -20,32 +20,32 @@ namespace IoTRynningeasenFA
 
             var httpClient = new HttpClient();
 
-            string requestBody = req.Content.ReadAsStringAsync().Result;
+            var requestBody = req.Content.ReadAsStringAsync().Result;
             log.Info($"Request body: {requestBody}");
             log.Info($"Debug: {configuration["iot-www-api-location"]}");
 
-            await httpClient.PostAsync($"{configuration["iot-www-api-location"]}", new StringContent(requestBody, System.Text.Encoding.UTF8, "application/json"));
+            var data = JsonConvert.DeserializeObject<dynamic[]>(requestBody);
 
-            dynamic[] data = JsonConvert.DeserializeObject<dynamic[]>(requestBody);
-
-            foreach (var @group in data)
+            foreach (var o in data)
             {
+                var route = o.Name.Contains(":temp") ? "temperature" : "pressure";
+
+                await httpClient.PostAsync(
+                    $"{configuration["iot-www-api-location"]}/{route}",
+                    new StringContent(requestBody, System.Text.Encoding.UTF8, "application/json"));
+
                 var channelKey = configuration["ts-ck-temperature"]; // 693480 - temp
-                if (@group.Name == "pressure")
+                if (route == "pressure")
                 {
                     channelKey = configuration["ts-ck-pressure"]; // 693482 - pressure
                 }
 
-                var fields = "";
-                foreach (var value in @group.Values)
-                {
-                    log.Info($"{value.Name}: {value.Value}");
+                log.Info($"{o.Name}: {o.Value}");
 
-                    var @field = int.Parse(value.Name.Split(':')[1]) - 100;
-                    fields += $"&field{@field}=" + value.Value;
-                }
+                var field = int.Parse(o.Name.Split(':')[1]) - 100;
+                var value = $"&field{field}=" + o.Value;
 
-                await httpClient.GetAsync($"https://api.thingspeak.com/update?api_key={channelKey}{fields}");
+                await httpClient.GetAsync($"https://api.thingspeak.com/update?api_key={channelKey}{value}");
             }
 
             return req.CreateResponse(HttpStatusCode.OK);
