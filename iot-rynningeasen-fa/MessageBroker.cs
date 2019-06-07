@@ -28,7 +28,10 @@ namespace IoTRynningeasenFA
 
             foreach (var o in data)
             {
-                var route = o.Name.Contains(":temp") ? "temperature" : "pressure";
+                var name = o.Name.ToString();
+                var value = (double) o.Value;
+
+                var route = name.Contains(":temp") ? "temperature" : "pressure";
 
                 await httpClient.PostAsync(
                     $"{configuration["iot-www-api-location"]}/{route}",
@@ -40,12 +43,12 @@ namespace IoTRynningeasenFA
                     channelKey = configuration["ts-ck-pressure"]; // 693482 - pressure
                 }
 
-                log.Info($"{o.Name}: {o.Value}");
+                log.Info($"{name}: {value}");
 
-                var field = int.Parse(o.Name.Split(':')[1]) - 100;
-                var value = $"&field{field}=" + o.Value;
+                var field = int.Parse(name.Split(':')[1]) - 100;
+                var fieldValue = $"&field{field}=" + value;
 
-                await httpClient.GetAsync($"https://api.thingspeak.com/update?api_key={channelKey}{value}");
+                await httpClient.GetAsync($"https://api.thingspeak.com/update?api_key={channelKey}{fieldValue}");
             }
 
             return req.CreateResponse(HttpStatusCode.OK);
