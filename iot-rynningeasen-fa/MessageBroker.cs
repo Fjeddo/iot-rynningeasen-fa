@@ -31,16 +31,30 @@ namespace IoTRynningeasenFA
                 var name = o.Name.ToString();
                 var value = (double) o.Value;
 
-                var route = name.Contains(":temp") ? "temperature" : "pressure";
+                var route = "temperature";
+
+                if (name.Contains(":pressure"))
+                {
+                    route = "pressure";
+                }
+                else if(name.Contains(":humidity"))
+                {
+                    route = "humidity";
+                }
 
                 await httpClient.PostAsync(
                     $"{configuration["iot-www-api-location"]}/{route}",
                     new StringContent(JsonConvert.SerializeObject(o), System.Text.Encoding.UTF8, "application/json"));
 
-                var channelKey = configuration["ts-ck-temperature"]; // 693480 - temp
-                if (route == "pressure")
+                var channelKey = configuration["ts-ck-temperature"];
+                switch (route)
                 {
-                    channelKey = configuration["ts-ck-pressure"]; // 693482 - pressure
+                    case "pressure":
+                        channelKey = configuration["ts-ck-pressure"];
+                        break;
+                    case "humidity":
+                        channelKey = configuration["ts-ck-humidity"]; 
+                        break;
                 }
 
                 log.Info($"{name}: {value}");
