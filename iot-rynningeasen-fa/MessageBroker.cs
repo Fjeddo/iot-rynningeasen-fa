@@ -23,6 +23,7 @@ namespace IoTRynningeasenFA
             var requestBody = req.Content.ReadAsStringAsync().Result;
             log.Info($"Request body: {requestBody}");
             log.Info($"Debug: {configuration["iot-www-api-location"]}");
+            log.Info($"Debug: {configuration["iot-www2-api-location"]}");
 
             var data = JsonConvert.DeserializeObject<dynamic[]>(requestBody);
 
@@ -44,6 +45,10 @@ namespace IoTRynningeasenFA
 
                 await httpClient.PostAsync(
                     $"{configuration["iot-www-api-location"]}/{route}",
+                    new StringContent(JsonConvert.SerializeObject(o), System.Text.Encoding.UTF8, "application/json"));
+                
+                await httpClient.PostAsync(
+                    $"{configuration["iot-www2-api-location"]}/{route}",
                     new StringContent(JsonConvert.SerializeObject(o), System.Text.Encoding.UTF8, "application/json"));
 
                 var channelKey = configuration["ts-ck-temperature"];
