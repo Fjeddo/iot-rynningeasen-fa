@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -29,8 +30,14 @@ namespace IoTRynningeasenFA
             // For debug purposes...
             if (requestBody.ToLowerInvariant().Contains("debug"))
             {
-                log.Info($"Debug: Returning with noop");
-                return req.CreateResponse(HttpStatusCode.OK, requestBody);
+                log.Info("Debug: Returning with noop");
+                var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = 
+                        new ObjectContent(typeof(object), JsonConvert.DeserializeObject(requestBody), new JsonMediaTypeFormatter())
+                };
+
+                return httpResponseMessage;
             }
             // End for debug purposes...
 
