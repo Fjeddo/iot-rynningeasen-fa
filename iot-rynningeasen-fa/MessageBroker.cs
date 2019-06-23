@@ -6,6 +6,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace IoTRynningeasenFA
 {
@@ -24,6 +25,15 @@ namespace IoTRynningeasenFA
             log.Info($"Request body: {requestBody}");
             log.Info($"Debug: {configuration["iot-www-api-location"]}");
             log.Info($"Debug: {configuration["iot-www2-api-location"]}");
+
+            // For debug purposes...
+            var requestBodyObject = JsonConvert.DeserializeObject<dynamic>(requestBody);
+            if (!(requestBodyObject is Array))
+            {
+                log.Info($"Debug: Returning with noop");
+                return req.CreateResponse(HttpStatusCode.OK);
+            }
+            // End for debug purposes...
 
             var data = JsonConvert.DeserializeObject<dynamic[]>(requestBody);
 
