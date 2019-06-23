@@ -30,7 +30,7 @@ namespace IoTRynningeasenFA
             if (requestBody.ToLowerInvariant().Contains("debug"))
             {
                 log.Info($"Debug: Returning with noop");
-                return req.CreateResponse(HttpStatusCode.OK);
+                return req.CreateResponse(HttpStatusCode.OK, requestBody);
             }
             // End for debug purposes...
 
