@@ -27,8 +27,7 @@ namespace IoTRynningeasenFA
             log.Info($"Debug: {configuration["iot-www2-api-location"]}");
 
             // For debug purposes...
-            var requestBodyObject = JsonConvert.DeserializeObject<dynamic>(requestBody);
-            if (!(requestBodyObject is Array))
+            if (requestBody.ToLowerInvariant().Contains("debug"))
             {
                 log.Info($"Debug: Returning with noop");
                 return req.CreateResponse(HttpStatusCode.OK);
