@@ -24,7 +24,7 @@ namespace IoTRynningeasenFA
 
             var requestBody = req.Content.ReadAsStringAsync().Result;
             log.Info($"Request body: {requestBody}");
-            log.Info($"Debug: {configuration["iot-www-api-location"]}");
+            //log.Info($"Debug: {configuration["iot-www-api-location"]}");
             //log.Info($"Debug: {configuration["iot-www2-api-location"]}");
 
             // For debug purposes...
@@ -59,9 +59,11 @@ namespace IoTRynningeasenFA
                     route = "humidity";
                 }
 
+                /*
                 await httpClient.PostAsync(
                     $"{configuration["iot-www-api-location"]}/{route}",
                     new StringContent(JsonConvert.SerializeObject(o), System.Text.Encoding.UTF8, "application/json"));
+                */
                 
                 /*
                 await httpClient.PostAsync(
