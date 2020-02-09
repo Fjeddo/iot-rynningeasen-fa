@@ -72,7 +72,7 @@ namespace IoTRynningeasenFACore
                     return new BadRequestObjectResult(sensors);
                 }
 
-                data.Add(new { Name = name, Value = value });
+                data.Add(new {Type = sensorsType.Key, Name = name, Value = value});
             }
 
             var httpClient = new HttpClient();
@@ -112,7 +112,7 @@ namespace IoTRynningeasenFACore
                 await httpClient.GetAsync($"https://api.thingspeak.com/update?api_key={channelKey}{fieldValue}");
             }
 
-            return new OkResult();
+            return new OkObjectResult(data);
         }
     }
 }
