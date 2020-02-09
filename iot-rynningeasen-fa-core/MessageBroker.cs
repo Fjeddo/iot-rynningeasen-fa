@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -22,12 +25,9 @@ namespace IoTRynningeasenFACore
 
             log.LogInformation("C# HTTP IoT Messagebroker function processed a request.");
 
-            var httpClient = new HttpClient();
-
             var requestBody = req.ReadAsStringAsync().Result;
+
             log.LogInformation($"Request body: {requestBody}");
-            //log.Info($"Debug: {configuration["iot-www-api-location"]}");
-            //log.Info($"Debug: {configuration["iot-www2-api-location"]}");
 
             // For debug purposes...
             if (requestBody.ToLowerInvariant().Contains("debug"))
@@ -43,8 +43,40 @@ namespace IoTRynningeasenFACore
             }
             // End for debug purposes...
 
-            var data = JsonConvert.DeserializeObject<dynamic[]>(requestBody);
+            var sensors = SensorsFunctions.GetSensors(requestBody);
+            var data = new List<dynamic>();
+            foreach (var sensorsType in sensors)
+            {
+                string name;
 
+                var baseline = DateTime.UtcNow;
+                var value = SensorsFunctions.CalculateWeightedAvg(sensorsType.Value.Select(x => SensorsFunctions.CreateWeightedSensor(x, baseline)));
+
+                if (sensorsType.Key == "ZHATemperature")
+                {
+                    name = "sensor:101:temp";
+                    value /= (decimal) 100.0;
+                }
+                else if (sensorsType.Key == "ZHAPressure")
+                {
+                    name = "sensor:102:pressure";
+                    //value = value;
+                }
+                else if (sensorsType.Key == "ZHAHumidity")
+                {
+                    name = "sensor:103:humidity";
+                    value /= (decimal) 100.0;
+                } 
+                else
+                {
+                    return new BadRequestObjectResult(sensors);
+                }
+
+                data.Add(new { Name = name, Value = value });
+            }
+
+            var httpClient = new HttpClient();
+            
             foreach (var o in data)
             {
                 var name = o.Name.ToString();
@@ -61,18 +93,6 @@ namespace IoTRynningeasenFACore
                     route = "humidity";
                 }
 
-                /*
-                await httpClient.PostAsync(
-                    $"{configuration["iot-www-api-location"]}/{route}",
-                    new StringContent(JsonConvert.SerializeObject(o), System.Text.Encoding.UTF8, "application/json"));
-                */
-
-                /*
-                await httpClient.PostAsync(
-                    $"{configuration["iot-www2-api-location"]}/{route}",
-                    new StringContent(JsonConvert.SerializeObject(o), System.Text.Encoding.UTF8, "application/json"));
-                */
-
                 var channelKey = configuration["ts-ck-temperature"];
                 switch (route)
                 {
@@ -84,10 +104,10 @@ namespace IoTRynningeasenFACore
                         break;
                 }
 
-                log.LogInformation($"{name}: {value}");
+                log.LogInformation($"{name}: {value.ToString(CultureInfo.InvariantCulture)}");
 
                 var field = int.Parse(name.Split(':')[1]) - 100;
-                var fieldValue = $"&field{field}=" + value;
+                var fieldValue = $"&field{field}=" + value.ToString(CultureInfo.InvariantCulture);
 
                 await httpClient.GetAsync($"https://api.thingspeak.com/update?api_key={channelKey}{fieldValue}");
             }
