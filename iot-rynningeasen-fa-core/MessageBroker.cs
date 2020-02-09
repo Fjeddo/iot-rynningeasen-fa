@@ -26,6 +26,7 @@ namespace IoTRynningeasenFACore
 
             var requestBody = req.ReadAsStringAsync().Result;
             log.LogInformation($"Request body: {requestBody}");
+            log.LogInformation($"Config test: {configuration["iot-www2-api-location"]}");
             //log.Info($"Debug: {configuration["iot-www-api-location"]}");
             //log.Info($"Debug: {configuration["iot-www2-api-location"]}");
 
