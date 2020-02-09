@@ -8,7 +8,7 @@ namespace IoTRynningeasenFACore
 {
     public class SensorsFunctions
     {
-        public Dictionary<string, Sensor<State>[]> GetSensors(string rawJson)
+        public static Dictionary<string, Sensor<State>[]> GetSensors(string rawJson)
         {
             var sensors = JToken.Parse(rawJson)
                 .Children().Values().Where(x => x["type"].ToString().StartsWith("ZHA"))
@@ -32,7 +32,7 @@ namespace IoTRynningeasenFACore
             return o.ToObject<Sensor<State>>();
         }
 
-        public WeightedSensor CreateWeightedSensor(Sensor<State> sensor, DateTime baseLine)
+        public static WeightedSensor CreateWeightedSensor(Sensor<State> sensor, DateTime baseLine)
         {
             return new WeightedSensor(
                 sensor.type,
@@ -41,7 +41,7 @@ namespace IoTRynningeasenFACore
                 sensor.state.lastupdated);
         }
 
-        public decimal CalculateWeightedAvg(IEnumerable<WeightedSensor> weightedSensors)
+        public static decimal CalculateWeightedAvg(IEnumerable<WeightedSensor> weightedSensors)
         {
             decimal totalWeight = weightedSensors.Sum(x => x.Weight);
             decimal total = weightedSensors.Sum(x => x.Weight * x.Value);
