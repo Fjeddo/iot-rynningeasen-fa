@@ -49,5 +49,24 @@ namespace IoTRynningeasenFACore
             var weightedAvg = totalWeight == 0 ? Decimal.MinValue : Math.Round(total / totalWeight, 3);
             return weightedAvg;
         }
+
+        /// https://www.smhi.se/kunskapsbanken/hur-mats-lufttryck-1.23830
+        /// https://dotnetfiddle.net/6P3tS8
+        public static double CalculateQFF(
+            double sensorPressure /*sensor pressure*/,
+            double temperature /*temperture*/,
+            double degLatitude /*latitude in deg*/,
+            double heightAboveSeaLevel /*height above sea level*/)
+        {
+            //var heightAboveSeaLevel = 30;
+            //var temperature = 3.1;
+            //var degLatitude = 59.284611;
+            //var sensorPressure = 970.3;
+
+            var t1 = temperature < -7 ? 0.500 * temperature + 275.0 : (temperature < 2 ? 0.535 * temperature + 275.6 : 1.07 * temperature + 274.5);
+            var b = 0.034163 * (1 - 0.0026373 * Math.Cos(2 * degLatitude));
+
+            return sensorPressure * Math.Exp(heightAboveSeaLevel * b / t1);
+        }
     }
 }
