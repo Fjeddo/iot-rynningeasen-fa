@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Microsoft.AspNetCore.Http;
@@ -94,13 +95,16 @@ namespace IoTRynningeasenFACore
                 }
 
                 var channelKey = configuration["ts-ck-temperature"];
+                var wwwRoute = configuration["www-temperature"];
                 switch (route)
                 {
                     case "pressure":
                         channelKey = configuration["ts-ck-pressure"];
+                        wwwRoute = configuration["www-pressure"];
                         break;
                     case "humidity":
                         channelKey = configuration["ts-ck-humidity"];
+                        wwwRoute = configuration["www-humidity"];
                         break;
                 }
 
@@ -110,6 +114,12 @@ namespace IoTRynningeasenFACore
                 var fieldValue = $"&field{field}=" + value.ToString(CultureInfo.InvariantCulture);
 
                 await httpClient.GetAsync($"https://api.thingspeak.com/update?api_key={channelKey}{fieldValue}");
+
+                var jsonData = new { Value = value }.ToString();
+                log.LogInformation($"Posting '{jsonData}' to {wwwRoute}");
+
+                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                await httpClient.PostAsync(wwwRoute.ToString(), content);
             }
 
             return new OkObjectResult(data);
