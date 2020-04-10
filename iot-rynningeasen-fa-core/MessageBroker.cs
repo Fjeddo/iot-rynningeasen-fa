@@ -115,7 +115,7 @@ namespace IoTRynningeasenFACore
 
                 await httpClient.GetAsync($"https://api.thingspeak.com/update?api_key={channelKey}{fieldValue}");
 
-                var jsonData = new { Value = value }.ToString();
+                var jsonData = System.Text.Json.JsonSerializer.Serialize(new {Value = value});
                 log.LogInformation($"Posting: '{jsonData}' to: {wwwRoute}");
 
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
