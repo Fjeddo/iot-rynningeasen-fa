@@ -37,7 +37,7 @@ namespace IoTRynningeasenFACore
             return new WeightedSensor(
                 sensor.type,
                 sensor.state.value,
-                Math.Max(0, (int)Math.Truncate(60 - (baseLine - sensor.state.lastupdated).TotalMinutes)),
+                sensor.state.value < -9999 ? 0 : Math.Max(0, (int)Math.Truncate(60 - (baseLine - sensor.state.lastupdated).TotalMinutes)),
                 sensor.state.lastupdated);
         }
 
